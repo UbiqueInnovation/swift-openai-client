@@ -18,6 +18,10 @@ public struct Chat {
     }
 
     public func completion(_ messages: ChatContentPayload...) async throws -> Message {
+        return try await completion(messages)
+    }
+    
+    public func completion(_ messages: [ChatContentPayload]) async throws -> Message {
         let requestMessages = messages.map { Components.Schemas.ChatCompletionRequestMessage.ChatCompletionRequestUserMessage(.init(content: .case2([$0.chatCompletionContentPayload]), role: .user)) }
         let completion = try await client.createChatCompletion(body: .json(.init(messages: requestMessages, model: .init(value2: model)))).ok.body.json
 
