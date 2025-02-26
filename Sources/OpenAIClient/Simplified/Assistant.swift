@@ -53,7 +53,12 @@ public actor Assistant {
         }
 
         @discardableResult
-        public func addMessage(_ content: ContentPayload...) async throws -> Message {
+        public func addMessage(_ content: AssistantMessagePayload...) async throws -> Message {
+            try await addMessage(content)
+        }
+
+        @discardableResult
+        public func addMessage(_ content: [AssistantMessagePayload]) async throws -> Message {
             let payload = content.map { $0.createMessageContentPayload }
             let raw = try await client.createMessage(path: .init(thread_id: id), body: .json(.init(role: .user, content: .case2(payload)))).ok.body.json
             return Message(raw: raw)
@@ -117,11 +122,10 @@ public actor Assistant {
         }
     }
 
+}
 
-
-
-
-
+public protocol AssistantMessagePayload {
+    var createMessageContentPayload: Components.Schemas.CreateMessageRequest.contentPayload.Case2PayloadPayload { get }
 }
 
 

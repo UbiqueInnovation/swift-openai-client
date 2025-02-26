@@ -11,11 +11,12 @@ import OpenAPIURLSession
 import HTTPTypes
 
 public extension Client {
-    init(key: String, beta: Bool = true) throws {
+    init(serverURL: URL? = nil, key: String, beta: Bool = true) throws {
         var middlewares: [ClientMiddleware] = [AuthMiddleware(key: key)]
         if beta{
             middlewares.append(BetaMiddleware())
         }
-        self.init(serverURL: try Servers.server1(), transport: URLSessionTransport(), middlewares: middlewares)
+        let url = try serverURL ?? Servers.Server1.url()
+        self.init(serverURL: url, transport: URLSessionTransport(), middlewares: middlewares)
     }
 }

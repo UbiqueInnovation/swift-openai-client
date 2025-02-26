@@ -10,22 +10,24 @@ let package = Package(
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "OpenAIClient",
-            targets: ["OpenAIClient"]),
+            targets: ["OpenAIClient"])
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-openapi-generator.git", from: "1.2.1"),
-        .package(url: "https://github.com/apple/swift-openapi-runtime.git", from: "1.2.1"),
-        .package(url: "https://github.com/apple/swift-openapi-urlsession.git", from: "1.0.1"),
+        .package(url: "https://github.com/apple/swift-openapi-generator.git", from: "1.7.0"),
+        .package(url: "https://github.com/apple/swift-openapi-runtime.git", from: "1.8.0"),
+        .package(url: "https://github.com/apple/swift-openapi-urlsession.git", from: "1.0.2"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "OpenAIClient", dependencies: [
+            name: "OpenAIClient",
+            dependencies: [
                 .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
                 .product(name: "OpenAPIURLSession", package: "swift-openapi-urlsession"),
-            ], plugins: [
-                .plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator"),
+            ],
+            plugins: [
+                .plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")
             ]),
         .testTarget(
             name: "OpenAIClientTests",

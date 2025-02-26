@@ -7,20 +7,32 @@
 
 import Foundation
 
-public protocol ContentPayload {
-    var createMessageContentPayload: Components.Schemas.CreateMessageRequest.contentPayload.Case2PayloadPayload { get }
-}
 
-public protocol ChatContentPayload {
-    var chatCompletionContentPayload: Components.Schemas.ChatCompletionRequestMessageContentPart { get }
-}
 
-extension String: ContentPayload, ChatContentPayload {
-    public var createMessageContentPayload: Components.Schemas.CreateMessageRequest.contentPayload.Case2PayloadPayload {
-        .MessageRequestContentTextObject(.init(_type: .text, text: self))
-    }
-    public var chatCompletionContentPayload: Components.Schemas.ChatCompletionRequestMessageContentPart {
-        .ChatCompletionRequestMessageContentPartText(.init(_type: .text, text: self))
-    }
-}
+//public protocol ContentPart {
+//    var chatCompletionRequestMessageContentPart: Components.Schemas.ChatCompletionRequestMessageContentPart { get }
+//}
+//
+//public protocol ContentPayload {
+//    var createMessageRequestContentPayload2: Components.Schemas.CreateMessageRequest.contentPayload.Case2PayloadPayload { get }
+//    var chatCompletionRequestMessage: Components.Schemas.ChatCompletionRequestMessage { get }
+//}
+//
+//extension String: ContentPart {
+//    public var chatCompletionRequestMessageContentPart: Components.Schemas.ChatCompletionRequestMessageContentPart {
+//        .ChatCompletionRequestMessageContentPartText(.init(_type: .text, text: self))
+//    }
+//}
+//
+//extension String: ContentPayload {
+//    public var createMessageRequestContentPayload2: Components.Schemas.CreateMessageRequest.contentPayload.Case2PayloadPayload {
+//        .MessageRequestContentTextObject(.init(_type: .text, text: self))
+//    }
+//
+//    public var chatCompletionRequestMessage: Components.Schemas.ChatCompletionRequestMessage {
+//        Components.Schemas.ChatCompletionRequestMessage.ChatCompletionRequestUserMessage(.init(content: .case2([self.chatCompletionRequestMessageContentPart]), role: .user))
+//    }
+//
+//}
+
 

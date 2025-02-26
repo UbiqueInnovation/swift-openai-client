@@ -1,50 +1,109 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Nicolas Märki on 27.06.2024.
 //
 
 import Foundation
+#if canImport(UIKit)
+import UIKit
+#endif
 
 public struct Message {
-    public enum MessageType {
-        case messageObject(Components.Schemas.MessageObject)
-        case chatCompletionMessage(Components.Schemas.ChatCompletionResponseMessage)
-    }
-    public let raw: MessageType
-    init(raw: Components.Schemas.MessageObject) {
-        self.raw = .messageObject(raw)
-    }
-    init(raw: Components.Schemas.ChatCompletionResponseMessage) {
-        self.raw = .chatCompletionMessage(raw)
-    }
+    public enum Part {
+        case text(String)
+        case image_url(String)
+        case file(String)
 
-    public var text: String  {
-        get throws {
+        init(raw: String) {
+            self = .text(raw)
+        }
+        init(raw: Components.Schemas.MessageObject.contentPayloadPayload) {
             switch raw {
-                case .messageObject(let object):
-                    if object.content.count != 1 {
-                        throw OpenAIError(errorDescription: "Not a single object as content")
-                    }
-                    switch object.content.first {
-                        case .some(.MessageContentTextObject(let object)):
-                            return object.text.value
-                        default: throw OpenAIError(errorDescription: "No text object at index 0")
-                    }
-                case .chatCompletionMessage(let message):
-                    if let text = message.content {
-                        return text
-                    }
-                    else {
-                        throw OpenAIError(errorDescription: "No content")
-                    }
+                case .MessageContentTextObject(let text):
+                    self = .text(text.text.value)
+                case .MessageContentImageUrlObject(let url):
+                    self = .image_url(url.image_url.url)
+                case .MessageContentImageFileObject(let file):
+                    self = .file(file.image_file.file_id)
             }
         }
     }
+    public enum Role {
+        case user
+        case assistant
+    }
+    let parts: [Part]
+    let role: Role
 
-    public func decoded<T: Decodable>(as type: T.Type = T.self) throws ->  T {
+    init(raw: Components.Schemas.MessageObject) {
+        self.parts = raw.content.map { Part(raw: $0) }
+        switch raw.role {
+            case .assistant: self.role = .assistant
+            case .user: self.role = .user
+        }
+    }
+    init(raw: Components.Schemas.ChatCompletionResponseMessage) {
+        if let text = raw.content {
+            self.parts = [.text(text)]
+        }
+        else {
+            self.parts = []
+        }
+        switch raw.role {
+            case .assistant: self.role = .assistant
+        }
+    }
+    public init(_ parts: [MessagePartContent], role: Role = .user) {
+        self.parts = parts.map { $0.part }
+        self.role = role
+    }
+    public init(_ parts: MessagePartContent..., role: Role = .user) {
+        self.parts = parts.map { $0.part }
+        self.role = role
+    }
+
+    public var text: String {
+
+        get throws {
+            switch parts.first {
+                case .none: throw OpenAIError(errorDescription: "No parts")
+                case .text(let text): return text
+                default: throw OpenAIError(errorDescription: "No text part")
+            }
+        }
+
+        
+    }
+
+    public func decoded<T: Decodable>(as type: T.Type = T.self) throws -> T {
         return try JSONDecoder().decode(T.self, from: self.text.data(using: .utf8)!)
     }
 }
 
+public protocol MessagePartContent {
+    var part: Message.Part { get }
+}
+
+extension String: MessagePartContent {
+     public var part: Message.Part {
+        .text(self)
+    }
+}
+
+extension URL: MessagePartContent {
+    public var part: Message.Part {
+        .image_url(self.absoluteString)
+    }
+}
+
+#if canImport(UIKit)
+extension UIImage: MessagePartContent {
+    public var part: Message.Part {
+        let encoded = self.pngData()!.base64EncodedString()
+        let url = "data:image/png;base64,\(encoded)"
+        return .image_url(url)
+    }
+}
+#endif

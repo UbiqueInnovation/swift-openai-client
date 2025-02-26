@@ -42,19 +42,24 @@ public struct File {
     }
 }
 
- extension File: ContentPayload {
-    public var createMessageContentPayload: Components.Schemas.CreateMessageRequest.contentPayload.Case2PayloadPayload {
-        .MessageContentImageFileObject(.init(_type: .image_file, image_file: .init(file_id: id)))
-    }
-
-}
-
-extension URL: ContentPayload, ChatContentPayload {
-    public var createMessageContentPayload: Components.Schemas.CreateMessageRequest.contentPayload.Case2PayloadPayload {
-        .MessageContentImageUrlObject(.init(_type: .image_url, image_url: .init(url: self.absoluteString)))
-    }
-    public var chatCompletionContentPayload: Components.Schemas.ChatCompletionRequestMessageContentPart {
-        .ChatCompletionRequestMessageContentPartImage(.init(_type: .image_url, image_url: .init(url: self.absoluteString)))
-    }
-
-}
+//extension File: ContentPayload {
+//    public var chatCompletionRequestMessage: Components.Schemas.ChatCompletionRequestMessage {
+//        fatalError("not implemented")
+//    }
+//
+//    public var createMessageRequestContentPayload2: Components.Schemas.CreateMessageRequest.contentPayload.Case2PayloadPayload {
+//        .MessageContentImageFileObject(.init(_type: .image_file, image_file: .init(file_id: id)))
+//    }
+//
+//
+//}
+//
+//extension URL: ContentPayload, ChatContentPayload {
+//    public var createMessageContentPayload: Components.Schemas.CreateMessageRequest.contentPayload.Case2PayloadPayload {
+//        .MessageContentImageUrlObject(.init(_type: .image_url, image_url: .init(url: self.absoluteString)))
+//    }
+//    public var chatCompletionContentPayload: Components.Schemas.ChatCompletionRequestMessageContentPart {
+//        .ChatCompletionRequestMessageContentPartImage(.init(_type: .image_url, image_url: .init(url: self.absoluteString)))
+//    }
+//
+//}
